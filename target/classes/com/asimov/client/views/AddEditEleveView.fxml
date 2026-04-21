@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="25.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.asimov.client.controllers.AddEditEleveController" stylesheets="@../css/styles.css" styleClass="content-pane" prefWidth="450.0">
+
+    <padding>
+        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+    </padding>
+
+    <Label fx:id="titleLabel" text="Fiche Élève" styleClass="title-label" />
+
+    <GridPane hgap="15" vgap="20">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="80" />
+            <ColumnConstraints hgrow="ALWAYS" />
+        </columnConstraints>
+
+        <Label text="Nom :" styleClass="label" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="nomField" promptText="Ex: Durand" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+        <Label text="Prénom :" styleClass="label" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="prenomField" promptText="Ex: Lucas" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+        <Label text="Email :" styleClass="label" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="emailField" promptText="lucas.durand@college.fr" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+        <Label text="Option 1 :" styleClass="label" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="option1Combo" promptText="Choisir une option..." prefWidth="250" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+        <Label text="Option 2 :" styleClass="label" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="option2Combo" promptText="Choisir une option..." prefWidth="250" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <Label fx:id="errorLabel" textFill="#EF5350" visible="false" wrapText="true" style="-fx-font-weight: bold;" />
+
+    <HBox spacing="15.0" alignment="CENTER_RIGHT" style="-fx-border-color: #2A2A2A transparent transparent transparent; -fx-border-width: 1 0 0 0;">
+        <padding>
+            <Insets top="20.0"/>
+        </padding>
+        <Button text="Annuler" styleClass="button" onAction="#handleCancel" />
+        <Button fx:id="saveButton" text="Enregistrer" styleClass="button-primary" onAction="#handleSave" />
+    </HBox>
+</VBox>
