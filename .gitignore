@@ -1,0 +1,16 @@
+# Fichiers de configuration sensibles
+.env
+
+# Dossiers de build (Java / Maven)
+target/
+*.class
+
+# Configuration de l'IDE (IntelliJ)
+.idea/
+*.iml
+out/
+
+# Logs
+*.log
+
+src/main/resources/config.properties

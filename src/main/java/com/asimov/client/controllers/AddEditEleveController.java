@@ -96,7 +96,9 @@ public class AddEditEleveController {
             eleve.setEmail(emailField.getText());
 
             if (eleve.getId() == 0) {
-                eleve.setPassword("P@ssword123");
+                String passwordParDefaut = com.asimov.client.utils.ConfigLoader.getProperty("eleve.default.password");
+                eleve.setPassword(passwordParDefaut);
+
                 eleve.setIdentifiant_csv("CSV-" + System.currentTimeMillis());
             }
 
