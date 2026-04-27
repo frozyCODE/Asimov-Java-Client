@@ -4,6 +4,8 @@ import com.asimov.client.models.Classe;
 import com.asimov.client.models.Eleve;
 import com.asimov.client.models.Option;
 import com.asimov.client.services.ClasseService;
+import com.asimov.client.services.EleveService;
+import com.asimov.client.services.InscriptionService;
 import com.asimov.client.services.OptionService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -14,13 +16,14 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
  * Contrôleur pour la vue de création et d'édition d'un élève.
  * <p>
- * Gère la validation des entrées, la sélection des classes et des options,
- * ainsi que la gestion sécurisée du mot de passe utilisateur.
+ * Gère la validation des entrées, la création/modification de l'élève,
+ * l'inscription dans une classe, et la synchronisation des options (ajout/retrait).
  * </p>
  */
 public class AddEditEleveController {
@@ -42,26 +45,15 @@ public class AddEditEleveController {
     private List<Option> optionsInitiales = new ArrayList<>();
     private final Option AUCUNE_OPTION = new Option(0, "--- Aucune ---");
 
-    /**
-     * Initialise le contrôleur. Cette méthode est appelée automatiquement par le FXMLLoader.
-     */
     @FXML
     public void initialize() {
         errorLabel.setVisible(false);
     }
 
-    /**
-     * Définit le stage (fenêtre) de cette boîte de dialogue.
-     * @param dialogStage Le stage de la fenêtre.
-     */
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
     }
 
-    /**
-     * Configure l'élève à modifier ou à créer.
-     * @param eleve L'instance de l'élève.
-     */
     public void setEleve(Eleve eleve) {
         this.eleve = eleve;
 
@@ -75,7 +67,7 @@ public class AddEditEleveController {
                 passwordField.setPromptText("Laisser vide pour conserver l'actuel");
             }
             if (classeCombo != null) {
-                classeCombo.setDisable(true);
+                classeCombo.setDisable(true); // En édition, on ne change pas la classe ici
             }
         } else {
             titleLabel.setText("Nouvel Élève");
@@ -83,20 +75,19 @@ public class AddEditEleveController {
         chargerReferentiels();
     }
 
-    /**
-     * @return true si l'utilisateur a cliqué sur Enregistrer, false sinon.
-     */
     public boolean isOkClicked() {
         return okClicked;
     }
 
     /**
-     * Valide la saisie et ferme la fenêtre en cas de succès.
+     * Séquence d'enregistrement complète :
+     * 1. Sauvegarde de l'élève (Création ou Mise à jour).
+     * 2. Si création, inscription dans la classe.
+     * 3. Synchronisation des options (retrait des anciennes, ajout des nouvelles).
      */
     @FXML
     private void handleSave() {
         if (isInputValid()) {
-            // Nettoyage rigoureux des données (Trim)
             eleve.setNom(nomField.getText().trim());
             eleve.setPrenom(prenomField.getText().trim());
             eleve.setEmail(emailField.getText().trim());
@@ -106,39 +97,90 @@ public class AddEditEleveController {
                 eleve.setPassword(pass.trim());
             }
 
+            // Désactivation du bouton pendant le traitement pour éviter les clics multiples
+            errorLabel.setText("Sauvegarde en cours...");
+            errorLabel.setStyle("-fx-text-fill: #3B82F6;");
+            errorLabel.setVisible(true);
+
+            CompletableFuture<Void> operation;
+
             if (eleve.getId() == 0) {
+                // --- MODE CRÉATION ---
                 eleve.setIdentifiant_csv("CSV-" + System.currentTimeMillis());
+                operation = EleveService.createEleveAsync(eleve)
+                        .thenCompose(eleveCree -> {
+                            // On inscrit l'élève dans la classe sélectionnée
+                            if (classeCombo.getValue() != null) {
+                                return InscriptionService.inscrireEleveAsync(eleveCree.getId(), classeCombo.getValue().getId());
+                            }
+                            return CompletableFuture.completedFuture(null);
+                        });
+            } else {
+                // --- MODE MODIFICATION ---
+                operation = EleveService.updateEleveAsync(eleve);
             }
 
-            okClicked = true;
-            dialogStage.close();
+            // Une fois l'élève sauvegardé, on gère les options
+            operation.thenCompose(v -> synchroniserOptionsAsync())
+                    .thenRunAsync(() -> Platform.runLater(() -> {
+                        okClicked = true;
+                        dialogStage.close();
+                    }))
+                    .exceptionally(ex -> {
+                        Platform.runLater(() -> {
+                            errorLabel.setStyle("-fx-text-fill: #EF5350;");
+                            errorLabel.setText("Erreur lors de la sauvegarde : " + ex.getMessage());
+                        });
+                        ex.printStackTrace();
+                        return null;
+                    });
         }
     }
 
     /**
-     * Ferme la fenêtre sans enregistrer les modifications.
+     * Compare les options initiales avec la nouvelle sélection et lance les requêtes
+     * pour ajouter les nouvelles options et retirer celles qui ont été décochées.
      */
+    private CompletableFuture<Void> synchroniserOptionsAsync() {
+        if (eleve.getId() == 0) return CompletableFuture.completedFuture(null); // Sécurité
+
+        List<Integer> anciennesIds = optionsInitiales.stream().map(Option::getId).collect(Collectors.toList());
+        List<Integer> nouvellesIds = getSelectedOptionIds();
+
+        // Trouver les options à ajouter (présentes dans la nouvelle liste, pas dans l'ancienne)
+        List<Integer> aAjouter = nouvellesIds.stream()
+                .filter(id -> !anciennesIds.contains(id))
+                .collect(Collectors.toList());
+
+        // Trouver les options à retirer (présentes dans l'ancienne, plus dans la nouvelle)
+        List<Integer> aRetirer = anciennesIds.stream()
+                .filter(id -> !nouvellesIds.contains(id))
+                .collect(Collectors.toList());
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+        for (Integer id : aAjouter) {
+            futures.add(OptionService.assignerOptionAsync(eleve.getId(), id));
+        }
+        for (Integer id : aRetirer) {
+            futures.add(OptionService.retirerOptionAsync(eleve.getId(), id));
+        }
+
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    }
+
     @FXML
     private void handleCancel() {
         dialogStage.close();
     }
 
-    /**
-     * Valide les champs du formulaire.
-     * @return true si les données sont valides.
-     */
     private boolean isInputValid() {
         StringBuilder sb = new StringBuilder();
 
-        if (nomField.getText() == null || nomField.getText().trim().isEmpty()) {
-            sb.append("- Nom manquant\n");
-        }
-        if (prenomField.getText() == null || prenomField.getText().trim().isEmpty()) {
-            sb.append("- Prénom manquant\n");
-        }
-        if (emailField.getText() == null || !emailField.getText().contains("@")) {
-            sb.append("- Email invalide\n");
-        }
+        if (nomField.getText() == null || nomField.getText().trim().isEmpty()) sb.append("- Nom manquant\n");
+        if (prenomField.getText() == null || prenomField.getText().trim().isEmpty()) sb.append("- Prénom manquant\n");
+        if (emailField.getText() == null || !emailField.getText().contains("@")) sb.append("- Email invalide\n");
+
         if (eleve.getId() == 0 && (passwordField.getText() == null || passwordField.getText().trim().length() < 6)) {
             sb.append("- Mot de passe requis (min. 6 car.)\n");
         }
@@ -149,15 +191,13 @@ public class AddEditEleveController {
         if (sb.length() == 0) {
             return true;
         } else {
+            errorLabel.setStyle("-fx-text-fill: #EF5350;");
             errorLabel.setText(sb.toString());
             errorLabel.setVisible(true);
             return false;
         }
     }
 
-    /**
-     * Charge les listes de classes et d'options depuis les services.
-     */
     private void chargerReferentiels() {
         ClasseService.getAllClassesAsync().thenAcceptAsync(classes -> {
             Platform.runLater(() -> {
@@ -179,7 +219,7 @@ public class AddEditEleveController {
 
                 if (eleve.getId() != 0) {
                     OptionService.getOptionsByEleveAsync(eleve.getId()).thenAcceptAsync(choix -> {
-                        optionsInitiales = choix;
+                        optionsInitiales = choix; // On mémorise pour la synchronisation
                         Platform.runLater(() -> {
                             if (choix.size() >= 1) selectionnerOption(option1Combo, choix.get(0).getId());
                             if (choix.size() >= 2) selectionnerOption(option2Combo, choix.get(1).getId());
@@ -200,7 +240,4 @@ public class AddEditEleveController {
         if (option2Combo.getValue() != null && option2Combo.getValue().getId() != 0) ids.add(option2Combo.getValue().getId());
         return ids.stream().distinct().collect(Collectors.toList());
     }
-
-    public Classe getSelectedClasse() { return (classeCombo != null) ? classeCombo.getValue() : null; }
-    public List<Option> getOptionsInitiales() { return optionsInitiales; }
 }
