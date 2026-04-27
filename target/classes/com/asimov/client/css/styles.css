@@ -145,7 +145,8 @@
 
 /* --- 8. TABLEAUX DE DONNÉES --- */
 .table-view {
-    -fx-background-color: transparent;
+    -fx-background-color: #121212;
+    -fx-control-inner-background: #121212; /* CRUCIAL : Force le fond du tableau en sombre */
     -fx-border-color: #27272A;
     -fx-border-radius: 8;
     -fx-background-radius: 8;
@@ -161,17 +162,19 @@
     -fx-border-width: 1px;
     -fx-background-radius: 8 8 0 0;
 }
+
 .table-view .column-header {
     -fx-background-color: transparent;
     -fx-size: 45px;
 }
+
 .table-view .column-header .label {
     -fx-text-fill: #9CA3AF;
     -fx-font-weight: 600;
     -fx-alignment: center-left;
 }
 
-/* Lignes du tableau */
+/* Lignes du tableau (données) */
 .table-row-cell {
     -fx-background-color: #121212;
     -fx-border-color: transparent transparent #1F1F22 transparent; /* Séparateur horizontal discret */
@@ -179,10 +182,13 @@
     -fx-cell-size: 48px;
 }
 
-.table-row-cell:odd {
-    -fx-background-color: #121212;
+/* CRUCIAL : Rend invisibles les lignes vides en bas du tableau */
+.table-row-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
-.table-row-cell:hover {
+
+.table-row-cell:hover:!empty {
     -fx-background-color: #18181B;
 }
 
@@ -191,6 +197,7 @@
     -fx-background-color: #27272A;
     -fx-border-color: transparent;
 }
+
 .table-row-cell:selected .table-cell {
     -fx-text-fill: #FFFFFF;
 }
@@ -203,8 +210,9 @@
     -fx-padding: 0 0 0 10;
 }
 
-/* Nettoyage des zones vides (fond gris par défaut de JavaFX) */
+/* Nettoyage absolu des zones vides et des coins de l'en-tête */
 .table-view .filler,
+.table-view .column-header-background .filler,
 .table-view .corner {
     -fx-background-color: transparent;
 }
