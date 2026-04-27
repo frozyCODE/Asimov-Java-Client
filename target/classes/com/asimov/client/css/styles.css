@@ -1,205 +1,226 @@
+/* ==========================================================================
+   ASIMOV CLIENT - STYLESHEET
+   Thème sombre (Dark Mode)
+   ========================================================================== */
+
+/* --- 1. VARIABLES GLOBALES ET RACINE --- */
 .root {
-    -fx-font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -fx-font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     -fx-background-color: #121212;
-    -fx-font-size: 14px;
-    -fx-text-fill: #E0E0E0;
+    -fx-text-fill: #E5E7EB;
+    -fx-accent: #3B82F6;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
+/* --- 2. STRUCTURE PRINCIPALE --- */
+.top-bar {
+    -fx-background-color: #09090B;
+    -fx-padding: 15 25;
+    -fx-border-color: transparent transparent #27272A transparent;
+    -fx-border-width: 1px;
+}
+
+.content-pane {
+    -fx-padding: 20px;
+}
+
+/* --- 3. TYPOGRAPHIE (LABELS) --- */
 .label {
-    -fx-text-fill: #E0E0E0;
+    -fx-text-fill: #E5E7EB;
 }
-
 .title-label {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFFFFF;
-    -fx-padding: 0 0 10 0;
 }
-
 .subtitle-label {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #B0BEC5;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #9CA3AF;
 }
 
-.top-bar {
-    -fx-background-color: #1A1A1A;
-    -fx-border-color: transparent transparent #2A2A2A transparent;
-    -fx-border-width: 0 0 1px 0;
-    -fx-padding: 10px 20px;
-}
-
-.content-pane {
-    -fx-background-color: #1A1A1A;
-    -fx-background-radius: 8px;
-    -fx-border-radius: 8px;
-    -fx-border-color: #2A2A2A;
-    -fx-padding: 20px;
-    -fx-effect: null;
-}
-
+/* --- 4. BOUTONS D'ACTION --- */
 .button {
-    -fx-background-color: #242424;
+    -fx-background-color: #27272A;
     -fx-text-fill: #FFFFFF;
-    -fx-border-color: #383838;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
-    -fx-padding: 8px 16px;
+    -fx-font-weight: 600;
+    -fx-padding: 8 16;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
     -fx-cursor: hand;
-    -fx-font-weight: normal;
 }
-
 .button:hover {
-    -fx-background-color: #2F2F2F;
-    -fx-border-color: #4A4A4A;
-}
-
-.button:pressed {
-    -fx-background-color: #1A1A1A;
+    -fx-background-color: #3F3F46;
 }
 
 .button-primary {
-    -fx-background-color: #1E88E5;
+    -fx-background-color: #3B82F6;
     -fx-text-fill: #FFFFFF;
-    -fx-border-color: transparent;
-    -fx-font-weight: bold;
 }
-
 .button-primary:hover {
-    -fx-background-color: #1976D2;
-}
-
-.button-primary:pressed {
-    -fx-background-color: #1565C0;
+    -fx-background-color: #2563EB;
 }
 
 .button-danger {
     -fx-background-color: transparent;
-    -fx-text-fill: #EF5350;
-    -fx-border-color: #EF5350;
+    -fx-border-color: #EF4444;
+    -fx-text-fill: #EF4444;
+    -fx-border-radius: 6;
+    -fx-border-width: 1px;
 }
-
 .button-danger:hover {
-    -fx-background-color: rgba(239, 83, 80, 0.1);
+    -fx-background-color: #EF4444;
+    -fx-text-fill: #FFFFFF;
 }
 
-.button-danger:pressed {
-    -fx-background-color: rgba(239, 83, 80, 0.2);
-}
-
+/* --- 5. NAVIGATION (MENU SUPÉRIEUR) --- */
 .nav-button {
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-text-fill: #9E9E9E;
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
-    -fx-padding: 10px 15px;
-    -fx-border-width: 0 0 2px 0;
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
+    -fx-text-fill: #9CA3AF;
+    -fx-font-weight: 600;
+    -fx-padding: 8 16;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
 }
-
 .nav-button:hover {
-    -fx-background-color: #242424;
+    -fx-background-color: #18181B;
     -fx-text-fill: #FFFFFF;
 }
-
 .nav-button-active {
-    -fx-text-fill: #1E88E5;
-    -fx-border-color: transparent transparent #1E88E5 transparent;
-}
-
-.text-field, .password-field, .combo-box {
-    -fx-background-color: #242424;
+    -fx-background-color: #27272A;
     -fx-text-fill: #FFFFFF;
-    -fx-border-color: #383838;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
-    -fx-padding: 8px 12px;
-    -fx-prompt-text-fill: #757575;
 }
 
-.text-field:focused, .password-field:focused, .combo-box:focused {
-    -fx-border-color: #1E88E5;
-    -fx-border-width: 1px;
-    -fx-padding: 8px 12px;
+/* --- 6. CHAMPS DE SAISIE ET LISTES DÉROULANTES --- */
+.text-field, .combo-box {
+    -fx-background-color: #18181B;
+    -fx-border-color: #3F3F46;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 12;
 }
 
-.table-view {
-    -fx-background-color: #1A1A1A;
-    -fx-border-color: #2A2A2A;
-    -fx-border-radius: 6px;
-    -fx-background-radius: 6px;
+/* Texte de base et placeholder */
+.text-field {
+    -fx-text-fill: #FFFFFF;
+    -fx-prompt-text-fill: #71717A;
 }
 
-.table-view .filler {
+/* Placeholder spécifique pour la ComboBox */
+.combo-box {
+    -fx-prompt-text-fill: #9CA3AF;
+}
+
+/* Texte de l'élément sélectionné dans la ComboBox fermée (Ex: Nathan Garcia) */
+.combo-box .list-cell {
+    -fx-text-fill: #FFFFFF;
     -fx-background-color: transparent;
 }
 
-.table-view .column-header-background {
-    -fx-background-color: #222222;
-    -fx-background-radius: 6px 6px 0 0;
-    -fx-padding: 5px 0;
-    -fx-border-color: transparent transparent #2A2A2A transparent;
-    -fx-border-width: 0 0 1px 0;
+/* Bordure bleue au clic (Focus) en gardant le fond sombre */
+.text-field:focused, .combo-box:focused {
+    -fx-border-color: #3B82F6;
+    -fx-background-color: #18181B;
 }
 
+/* --- 7. MENU DÉROULANT DE LA COMBOBOX (POPUP) --- */
+.combo-box-popup .list-view {
+    -fx-background-color: #18181B;
+    -fx-border-color: #3F3F46;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+.combo-box-popup .list-cell {
+    -fx-padding: 8 12;
+    -fx-text-fill: #E5E7EB;
+    -fx-background-color: transparent;
+}
+/* Survol et sélection dans la liste déroulante */
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #27272A;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* --- 8. TABLEAUX DE DONNÉES --- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #27272A;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-table-cell-border-color: transparent; /* Retire les lignes verticales */
+    -fx-table-header-border-color: transparent;
+    -fx-padding: 1;
+}
+
+/* En-tête des colonnes */
+.table-view .column-header-background {
+    -fx-background-color: #18181B;
+    -fx-border-color: transparent transparent #27272A transparent;
+    -fx-border-width: 1px;
+    -fx-background-radius: 8 8 0 0;
+}
 .table-view .column-header {
     -fx-background-color: transparent;
-    -fx-border-color: transparent transparent transparent transparent;
-    -fx-size: 35px;
+    -fx-size: 45px;
 }
-
 .table-view .column-header .label {
-    -fx-font-weight: bold;
-    -fx-text-fill: #9E9E9E;
+    -fx-text-fill: #9CA3AF;
+    -fx-font-weight: 600;
     -fx-alignment: center-left;
-    -fx-padding: 0 10 0 10;
 }
 
+/* Lignes du tableau */
 .table-row-cell {
-    -fx-background-color: #1A1A1A;
-    -fx-border-color: transparent transparent #222222 transparent;
-    -fx-border-width: 0 0 1px 0;
-    -fx-cell-size: 40px;
-    -fx-text-fill: #FFFFFF !important;
-}
-
-.table-view .table-cell {
-    -fx-border-color: transparent;
-    -fx-padding: 0 10 0 10;
-    -fx-alignment: center-left;
-    -fx-text-fill: #FFFFFF !important;
+    -fx-background-color: #121212;
+    -fx-border-color: transparent transparent #1F1F22 transparent; /* Séparateur horizontal discret */
+    -fx-border-width: 1px;
+    -fx-cell-size: 48px;
 }
 
 .table-row-cell:odd {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #121212;
+}
+.table-row-cell:hover {
+    -fx-background-color: #18181B;
 }
 
+/* Ligne sélectionnée */
 .table-row-cell:selected {
-    -fx-background-color: rgba(30, 136, 229, 0.15);
-    -fx-border-color: transparent transparent #1E88E5 transparent;
+    -fx-background-color: #27272A;
+    -fx-border-color: transparent;
 }
-
 .table-row-cell:selected .table-cell {
-    -fx-text-fill: #FFFFFF !important;
+    -fx-text-fill: #FFFFFF;
 }
 
+/* Contenu des cellules */
+.table-view .table-cell {
+    -fx-text-fill: #E5E7EB;
+    -fx-font-size: 14px;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 10;
+}
+
+/* Nettoyage des zones vides (fond gris par défaut de JavaFX) */
+.table-view .filler,
+.table-view .corner {
+    -fx-background-color: transparent;
+}
+
+/* --- 9. BARRE DE DÉFILEMENT (SCROLLBAR) --- */
 .scroll-bar:vertical, .scroll-bar:horizontal {
     -fx-background-color: transparent;
 }
-.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
-    -fx-background-color: #424242;
-    -fx-background-radius: 4px;
+.scroll-bar .thumb {
+    -fx-background-color: #3F3F46;
+    -fx-background-radius: 10;
 }
-.scroll-bar:vertical .thumb:hover, .scroll-bar:horizontal .thumb:hover {
-    -fx-background-color: #616161;
+.scroll-bar .thumb:hover {
+    -fx-background-color: #52525B;
 }
-.scroll-bar .increment-button, .scroll-bar .decrement-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-}
-.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
-    -fx-shape: " ";
-    -fx-padding: 0;
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-opacity: 0;
 }

@@ -42,7 +42,6 @@ public class ApiClient {
             throw new ApiAuthException("Session expirée ou non valide.");
         }
         if (response.statusCode() == 403) {
-            // L'utilisateur est connecté, mais n'a pas les droits pour cette route spécifique
             throw new RuntimeException("Accès interdit (403) : Votre rôle ne permet pas cette action.");
         }
         if (response.statusCode() >= 400) {
@@ -90,6 +89,31 @@ public class ApiClient {
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(jsonBody));
+
+        if (jwtToken != null && !jwtToken.isEmpty()) {
+            requestBuilder.header("Authorization", "Bearer " + jwtToken);
+        }
+
+        HttpRequest request = requestBuilder.build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        checkResponseCode(response);
+        return response.body();
+    }
+
+    /**
+     * Envoie une requête HTTP PATCH (Modification partielle).
+     *
+     * @param endpoint L'URL de la route (ex: /moyennes/1/valider).
+     * @param jsonBody Le corps de la requête en JSON.
+     * @return La réponse de l'API sous forme de chaîne.
+     */
+    public String patch(String endpoint, String jsonBody) throws Exception {
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + endpoint))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonBody));
 
         if (jwtToken != null && !jwtToken.isEmpty()) {
             requestBuilder.header("Authorization", "Bearer " + jwtToken);

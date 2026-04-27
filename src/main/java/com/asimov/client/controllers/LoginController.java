@@ -14,9 +14,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Contrôleur de la page de connexion.
+ * Contrôleur de la vue d'authentification (Login).
+ * <p>
+ * Gère la saisie des identifiants, la validation de surface (champs vides, espaces accidentels),
+ * la communication asynchrone avec l'API Node.js et la redirection vers l'espace de travail.
+ * </p>
  */
 public class LoginController {
+
     private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
 
     @FXML private TextField emailInput;
@@ -24,10 +29,18 @@ public class LoginController {
     @FXML private Label errorLabel;
     @FXML private Button loginButton;
 
+    /**
+     * Déclenché lors de la validation du formulaire de connexion.
+     * Applique un nettoyage des données saisies (trim) pour prévenir les erreurs liées aux copier-coller,
+     * puis initie le processus d'authentification asynchrone.
+     */
     @FXML
     private void handleLoginAction() {
-        String email = emailInput.getText();
-        String password = passwordInput.getText();
+        /* Nettoyage strict des espaces invisibles (ex: fin de chaîne lors d'un copier-coller) */
+        String email = emailInput.getText().trim();
+        String password = passwordInput.getText().trim();
+
+        LOGGER.info("Tentative de connexion en cours pour : [" + email + "]");
 
         if (email.isEmpty() || password.isEmpty()) {
             showError("Veuillez remplir tous les champs.");
@@ -42,19 +55,18 @@ public class LoginController {
                 .thenAcceptAsync(token -> {
                     if (token != null) {
                         try {
-                            // LA CORRECTION EST ICI :
-                            // Tout le monde va vers le Dashboard. C'est le Dashboard qui fera le tri (Profil ou Tableau).
+                            /* Redirection vers le contrôleur principal qui dispatche les vues selon le rôle */
                             SceneManager.switchToDashboard();
                         } catch (IOException e) {
-                            LOGGER.log(Level.SEVERE, "Erreur lors du changement de scène", e);
-                            showError("Erreur d'interface.");
+                            LOGGER.log(Level.SEVERE, "Échec critique du chargement de la scène Dashboard", e);
+                            showError("Erreur d'interface système.");
                         }
                     } else {
                         showError("Identifiants incorrects.");
                     }
                 }, Platform::runLater)
                 .exceptionally(ex -> {
-                    LOGGER.log(Level.WARNING, "Erreur de connexion", ex);
+                    LOGGER.log(Level.WARNING, "Rejet de la connexion par le serveur distant", ex);
                     Platform.runLater(() -> showError("Erreur de connexion au serveur."));
                     return null;
                 })
@@ -64,6 +76,11 @@ public class LoginController {
                 }, Platform::runLater);
     }
 
+    /**
+     * Affiche un message d'erreur formaté sur l'interface utilisateur.
+     *
+     * @param message Le texte explicatif de l'erreur à afficher.
+     */
     private void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
