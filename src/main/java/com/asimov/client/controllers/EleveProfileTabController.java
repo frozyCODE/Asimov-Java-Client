@@ -15,12 +15,14 @@ import javafx.scene.control.*;
 import java.util.stream.Collectors;
 
 /**
- * Contrôleur pour la vue personnelle de l'élève.
- * Affiche les informations de scolarité et les résultats de l'utilisateur connecté.
+ * Contrôleur exclusif à l'espace personnel de l'élève.
+ * Ne charge que les données strictement liées à l'utilisateur connecté.
  */
 public class EleveProfileTabController {
 
-    @FXML private Label nomCompletLabel, emailLabel, classeLabel;
+    @FXML private Label nomCompletLabel;
+    @FXML private Label emailLabel;
+    @FXML private Label classeLabel;
     @FXML private ListView<String> optionsList;
     @FXML private TableView<Moyenne> moyennesTable;
     @FXML private TableColumn<Moyenne, Integer> semestreColumn;
@@ -29,38 +31,38 @@ public class EleveProfileTabController {
 
     private final ObservableList<Moyenne> resultats = FXCollections.observableArrayList();
 
-    /**
-     * Initialise le tableau des résultats.
-     */
     @FXML
     public void initialize() {
+        // Paramétrage des colonnes du tableau
         semestreColumn.setCellValueFactory(d -> d.getValue().semestreProperty().asObject());
         moyenneColumn.setCellValueFactory(d -> d.getValue().moyenne_generaleProperty().asObject());
 
-        // Affichage ultra-robuste en lecture seule
         statutColumn.setCellValueFactory(d -> {
             boolean isValide = d.getValue().isValidee_par_proviseur();
             return new javafx.beans.property.SimpleStringProperty(isValide ? "✅ Validée" : "⏳ En attente");
         });
 
         moyennesTable.setItems(resultats);
+
+        // On ne charge les données que si le rôle est bien "Eleve"
+        if ("Eleve".equalsIgnoreCase(UserSession.getInstance().getRole())) {
+            loadData();
+        }
     }
 
-    /**
-     * Charge les données de l'élève à partir de l'ID de session et peuple l'interface.
-     */
     public void loadData() {
         UserSession session = UserSession.getInstance();
         Integer eleveId = session.getEleveId();
 
+        // 1. Affichage des infos de base
         nomCompletLabel.setText(session.getPrenom() + " " + session.getNom());
         emailLabel.setText(session.getEmail());
 
         if (eleveId != null) {
-            // Récupération de l'inscription et des notes
+            // 2. Récupération de la classe et des moyennes
             InscriptionService.getInscriptionsByEleveAsync(eleveId).thenAcceptAsync(list -> {
                 if (!list.isEmpty()) {
-                    var current = list.get(list.size() - 1);
+                    var current = list.get(0); // Prend l'inscription la plus récente
                     Platform.runLater(() -> classeLabel.setText(current.toString()));
 
                     MoyenneService.getMoyennesByInscriptionAsync(current.getId()).thenAcceptAsync(notes ->
@@ -74,7 +76,7 @@ public class EleveProfileTabController {
                 }
             });
 
-            // Récupération des options
+            // 3. Récupération des options
             OptionService.getOptionsByEleveAsync(eleveId).thenAcceptAsync(options -> {
                 var noms = options.stream().map(Option::getNom).collect(Collectors.joining(", "));
                 Platform.runLater(() -> {
@@ -85,12 +87,6 @@ public class EleveProfileTabController {
                         optionsList.getItems().add("Aucune option choisie");
                     }
                 });
-            });
-        } else {
-            Platform.runLater(() -> {
-                classeLabel.setText("Profil élève introuvable");
-                optionsList.getItems().clear();
-                optionsList.getItems().add("Profil élève introuvable");
             });
         }
     }

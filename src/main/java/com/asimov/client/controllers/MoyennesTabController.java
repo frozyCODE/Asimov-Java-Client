@@ -34,14 +34,15 @@ public class MoyennesTabController {
     private final ObservableList<Eleve> masterEleveData = FXCollections.observableArrayList();
     private final ObservableList<Moyenne> masterMoyenneData = FXCollections.observableArrayList();
 
+    /**
+     * Initialisation de la vue. Configure les colonnes et lance le chargement
+     * de la liste des élèves dans la combobox.
+     */
     @FXML
     public void initialize() {
         semestreColumn.setCellValueFactory(d -> d.getValue().semestreProperty().asObject());
         moyenneColumn.setCellValueFactory(d -> d.getValue().moyenne_generaleProperty().asObject());
 
-        /**
-         * Liaison dynamique pour le statut : se met à jour dès que l'objet change.
-         */
         statutColumn.setCellValueFactory(d -> Bindings.createStringBinding(
                 () -> d.getValue().isValidee_par_proviseur() ? "✅ Validée" : "⏳ En attente",
                 d.getValue().validee_par_proviseurProperty()
@@ -55,7 +56,16 @@ public class MoyennesTabController {
             @Override public Eleve fromString(String s) { return null; }
         });
 
+        // Sécurité : Masquage des boutons critiques pour le Professeur
+        if ("Professeur".equalsIgnoreCase(UserSession.getInstance().getRole())) {
+            validerMoyenneButton.setVisible(false); validerMoyenneButton.setManaged(false);
+            deleteMoyenneButton.setVisible(false); deleteMoyenneButton.setManaged(false);
+        }
+
         setupListeners();
+
+        // CORRECTION : Lancement du chargement de la ComboBox d'élèves
+        loadData();
     }
 
     private void setupListeners() {
@@ -84,6 +94,9 @@ public class MoyennesTabController {
         });
     }
 
+    /**
+     * Peuple la ComboBox initiale avec la liste des élèves.
+     */
     public void loadData() {
         EleveService.recupererToutPourSelectionAsync().thenAcceptAsync(list -> Platform.runLater(() -> {
             masterEleveData.setAll(list);
@@ -97,8 +110,7 @@ public class MoyennesTabController {
         );
     }
 
-    @FXML
-    private void handleAddMoyenne() {
+    @FXML private void handleAddMoyenne() {
         Inscription ins = inscriptionMoyenneCombo.getValue();
         Integer sem = semestreAddCombo.getValue();
         String val = newMoyenneField.getText();
@@ -116,20 +128,14 @@ public class MoyennesTabController {
         }
     }
 
-    /**
-     * Valide la moyenne et force la mise à jour visuelle immédiate.
-     */
-    @FXML
-    private void handleValiderMoyenne() {
+    @FXML private void handleValiderMoyenne() {
         Moyenne selection = moyennesTable.getSelectionModel().getSelectedItem();
         if (selection != null) {
             MoyenneService.validerMoyenneAsync(selection.getId())
                     .thenRunAsync(() -> Platform.runLater(() -> {
                         selection.setValidee_par_proviseur(true);
                         moyennesTable.refresh();
-
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "La moyenne a été validée avec succès !");
-                        alert.show();
+                        new Alert(Alert.AlertType.INFORMATION, "La moyenne a été validée avec succès !").show();
                     }))
                     .exceptionally(ex -> {
                         Platform.runLater(() -> new Alert(Alert.AlertType.ERROR, "Erreur serveur : " + ex.getMessage()).show());
@@ -138,8 +144,7 @@ public class MoyennesTabController {
         }
     }
 
-    @FXML
-    private void handleDeleteMoyenne() {
+    @FXML private void handleDeleteMoyenne() {
         Moyenne selection = moyennesTable.getSelectionModel().getSelectedItem();
         if (selection != null) {
             MoyenneService.deleteMoyenneAsync(selection.getId())

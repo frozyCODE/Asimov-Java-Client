@@ -3,6 +3,7 @@ package com.asimov.client.controllers;
 import com.asimov.client.models.Eleve;
 import com.asimov.client.services.EleveService;
 import com.asimov.client.utils.SceneManager;
+import com.asimov.client.utils.UserSession;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -27,6 +28,7 @@ public class ElevesTabController {
     @FXML private TableColumn<Eleve, String> prenomColumn;
     @FXML private TableColumn<Eleve, String> emailColumn;
 
+    @FXML private Button addEleveButton; // Ajouté virtuellement pour correspondre au FXML
     @FXML private Button editEleveButton;
     @FXML private Button deleteEleveButton;
     @FXML private Button prevPageButton;
@@ -56,6 +58,16 @@ public class ElevesTabController {
             editEleveButton.setDisable(!isSelected);
             deleteEleveButton.setDisable(!isSelected);
         });
+
+        // Sécurité : Mode lecture seule pour le Professeur
+        if ("Professeur".equalsIgnoreCase(UserSession.getInstance().getRole())) {
+            if (addEleveButton != null) { addEleveButton.setVisible(false); addEleveButton.setManaged(false); }
+            editEleveButton.setVisible(false); editEleveButton.setManaged(false);
+            deleteEleveButton.setVisible(false); deleteEleveButton.setManaged(false);
+        }
+
+        // CORRECTION : Lancement du chargement des données
+        loadData();
     }
 
     /**
@@ -83,66 +95,30 @@ public class ElevesTabController {
         });
     }
 
-    /**
-     * Charge la page précédente si elle existe.
-     */
-    @FXML
-    private void handlePrevPage() {
-        if (pageCourante > 1) {
-            pageCourante--;
-            loadData();
-        }
+    @FXML private void handlePrevPage() {
+        if (pageCourante > 1) { pageCourante--; loadData(); }
     }
 
-    /**
-     * Charge la page suivante si elle existe.
-     */
-    @FXML
-    private void handleNextPage() {
-        if (pageCourante < totalPages) {
-            pageCourante++;
-            loadData();
-        }
+    @FXML private void handleNextPage() {
+        if (pageCourante < totalPages) { pageCourante++; loadData(); }
     }
 
-    /**
-     * Ouvre la fenêtre de dialogue pour la création d'un nouvel élève.
-     * Rafraîchit le tableau en cas de succès.
-     */
-    @FXML
-    private void handleAddEleve() {
+    @FXML private void handleAddEleve() {
         Eleve nouvelEleve = new Eleve();
-        if (SceneManager.showEleveEditDialog(nouvelEleve) != null) {
-            loadData();
-        }
+        if (SceneManager.showEleveEditDialog(nouvelEleve) != null) { loadData(); }
     }
 
-    /**
-     * Ouvre la fenêtre de dialogue pour modifier l'élève actuellement sélectionné.
-     * Rafraîchit le tableau en cas de succès.
-     */
-    @FXML
-    private void handleEditEleve() {
+    @FXML private void handleEditEleve() {
         Eleve selection = elevesTable.getSelectionModel().getSelectedItem();
-        if (selection != null && SceneManager.showEleveEditDialog(selection) != null) {
-            loadData();
-        }
+        if (selection != null && SceneManager.showEleveEditDialog(selection) != null) { loadData(); }
     }
 
-    /**
-     * Supprime l'élève actuellement sélectionné après appel au service.
-     * Rafraîchit la liste des données immédiatement après le succès de l'opération.
-     */
-    @FXML
-    private void handleDeleteEleve() {
+    @FXML private void handleDeleteEleve() {
         Eleve selection = elevesTable.getSelectionModel().getSelectedItem();
         if (selection != null) {
             EleveService.deleteEleveAsync(selection.getId())
                     .thenRunAsync(() -> Platform.runLater(this::loadData))
-                    .exceptionally(ex -> {
-                        ex.printStackTrace();
-                        return null;
-                    });
+                    .exceptionally(ex -> { ex.printStackTrace(); return null; });
         }
     }
 }

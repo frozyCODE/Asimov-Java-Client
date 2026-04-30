@@ -6,6 +6,7 @@ import com.asimov.client.models.EleveInscrit;
 import com.asimov.client.services.ClasseService;
 import com.asimov.client.services.EleveService;
 import com.asimov.client.services.InscriptionService;
+import com.asimov.client.utils.UserSession;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -37,6 +38,9 @@ public class ClassesTabController {
     private final ObservableList<EleveInscrit> masterElevesInscritsData = FXCollections.observableArrayList();
     private final ObservableList<Eleve> masterEleveData = FXCollections.observableArrayList();
 
+    /**
+     * Initialise la vue. Connecte les colonnes et déclenche le chargement.
+     */
     @FXML
     public void initialize() {
         setupClassesTable();
@@ -49,6 +53,12 @@ public class ClassesTabController {
             @Override public String toString(Eleve e) { return e == null ? "" : e.getPrenom() + " " + e.getNom(); }
             @Override public Eleve fromString(String s) { return null; }
         });
+
+        // CORRECTION : Lancement du chargement conditionné aux rôles ayant le droit d'accéder à l'API Classes
+        String role = UserSession.getInstance().getRole();
+        if ("Proviseur".equalsIgnoreCase(role) || "Secretariat".equalsIgnoreCase(role) || "Professeur".equalsIgnoreCase(role)) {
+            loadData();
+        }
     }
 
     private void setupClassesTable() {
@@ -93,7 +103,6 @@ public class ClassesTabController {
         masterClasseData.clear();
         ClasseService.getAllClassesAsync().thenAcceptAsync(list -> Platform.runLater(() -> masterClasseData.addAll(list)));
 
-        // Correction : Utilisation de la méthode dédiée à la sélection
         EleveService.recupererToutPourSelectionAsync().thenAcceptAsync(list -> Platform.runLater(() -> {
             masterEleveData.setAll(list);
             eleveToEnrollCombo.setItems(masterEleveData);

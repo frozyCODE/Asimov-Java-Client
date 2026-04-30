@@ -2,6 +2,7 @@ package com.asimov.client.controllers;
 
 import com.asimov.client.models.Option;
 import com.asimov.client.services.OptionService;
+import com.asimov.client.utils.UserSession;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,12 +15,13 @@ import java.util.List;
  * Contrôleur dédié à la gestion du catalogue des options scolaires.
  * <p>
  * Gère l'ajout, la suppression et l'affichage des options disponibles
- * dans l'établissement via l'interface JavaFX.
+ * dans l'établissement via l'interface JavaFX. Gère également la restriction d'accès.
  * </p>
  */
 public class OptionsTabController {
 
     @FXML private TextField newOptionField;
+    @FXML private Button addOptionButton;
     @FXML private Button deleteOptionButton;
     @FXML private TableView<Option> optionsTable;
     @FXML private TableColumn<Option, Integer> optionIdColumn;
@@ -28,8 +30,8 @@ public class OptionsTabController {
     private final ObservableList<Option> masterOptionData = FXCollections.observableArrayList();
 
     /**
-     * Initialise le contrôleur. Relie les colonnes du tableau aux propriétés du modèle
-     * et écoute la sélection pour activer/désactiver le bouton de suppression.
+     * Initialise le contrôleur. Relie les colonnes du tableau aux propriétés du modèle,
+     * configure la sécurité et lance le chargement initial des données.
      */
     @FXML
     public void initialize() {
@@ -42,6 +44,19 @@ public class OptionsTabController {
                 deleteOptionButton.setDisable(newSel == null);
             }
         });
+
+        // ==========================================================
+        // SÉCURITÉ : Mode lecture seule pour le Professeur
+        // ==========================================================
+        if ("Professeur".equalsIgnoreCase(UserSession.getInstance().getRole())) {
+            // Le prof ne peut pas créer ni supprimer d'options
+            if (newOptionField != null) { newOptionField.setVisible(false); newOptionField.setManaged(false); }
+            if (addOptionButton != null) { addOptionButton.setVisible(false); addOptionButton.setManaged(false); }
+            if (deleteOptionButton != null) { deleteOptionButton.setVisible(false); deleteOptionButton.setManaged(false); }
+        }
+
+        // CORRECTION DU BUG : Lancement du chargement des données dès l'ouverture de l'onglet !
+        loadData();
     }
 
     /**
@@ -73,7 +88,7 @@ public class OptionsTabController {
             OptionService.createOptionAsync(nouvelleOption.trim())
                     .thenRunAsync(() -> Platform.runLater(() -> {
                         newOptionField.clear();
-                        loadData();
+                        loadData(); // C'est lui qui faisait tout apparaître !
                     })).exceptionally(ex -> {
                         ex.printStackTrace();
                         return null;

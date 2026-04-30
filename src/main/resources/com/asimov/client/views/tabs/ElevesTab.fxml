@@ -8,7 +8,9 @@
     <HBox alignment="CENTER_LEFT" spacing="15.0">
         <Label text="Gestion des Élèves" styleClass="subtitle-label" />
         <Region HBox.hgrow="ALWAYS" />
-        <Button text="Nouveau" styleClass="button-primary" onAction="#handleAddEleve" />
+
+        <Button fx:id="addEleveButton" text="Nouveau" styleClass="button-primary" onAction="#handleAddEleve" />
+
         <Button fx:id="editEleveButton" text="Modifier" styleClass="button" onAction="#handleEditEleve" disable="true" />
         <Button fx:id="deleteEleveButton" text="Supprimer" styleClass="button, button-danger" onAction="#handleDeleteEleve" disable="true" />
     </HBox>

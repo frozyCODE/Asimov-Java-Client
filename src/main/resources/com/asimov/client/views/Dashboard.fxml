@@ -16,6 +16,7 @@
             <Button fx:id="optionsNavButton" text="Options" styleClass="nav-button" onAction="#showOptionsTab" />
             <Button fx:id="moyennesNavButton" text="Moyennes" styleClass="nav-button" onAction="#showMoyennesTab" />
             <Button fx:id="classesNavButton" text="Classes" styleClass="nav-button" onAction="#showClassesTab" visible="false" managed="false" />
+            <Button fx:id="professeursNavButton" text="Professeurs" styleClass="nav-button" onAction="#showProfesseursTab" />
         </HBox>
 
         <Label fx:id="welcomeLabel" style="-fx-text-fill: #9E9E9E;" text="Bienvenue !" />
@@ -23,14 +24,12 @@
     </HBox>
 
     <StackPane VBox.vgrow="ALWAYS" style="-fx-padding: 20px;">
-
         <fx:include fx:id="elevesTab" source="tabs/ElevesTab.fxml" visible="false" managed="false" />
         <fx:include fx:id="classesTab" source="tabs/ClassesTab.fxml" visible="false" managed="false" />
         <fx:include fx:id="optionsTab" source="tabs/OptionsTab.fxml" visible="false" managed="false" />
         <fx:include fx:id="moyennesTab" source="tabs/MoyennesTab.fxml" visible="false" managed="false" />
-        <fx:include fx:id="elevesTab" source="tabs/ElevesTab.fxml" visible="false" managed="false" />
         <fx:include fx:id="eleveProfileTab" source="tabs/EleveProfileTab.fxml" visible="false" managed="false" />
-
+        <fx:include fx:id="professeursTab" source="tabs/ProfesseursTab.fxml" visible="false" managed="false" />
     </StackPane>
 
 </VBox>
