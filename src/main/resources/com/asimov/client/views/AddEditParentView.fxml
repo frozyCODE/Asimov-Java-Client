@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0" styleClass="content-pane" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.asimov.client.controllers.AddEditParentController">
+    <padding>
+        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+    </padding>
+
+    <Label styleClass="title-label" text="Nouveau Parent" />
+
+    <GridPane hgap="15.0" vgap="15.0">
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="100.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" />
+        </columnConstraints>
+
+        <Label text="Nom :" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="label" />
+        <TextField fx:id="nomField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+        <Label text="Prénom :" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="label" />
+        <TextField fx:id="prenomField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <Label text="Email :" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="label" />
+        <TextField fx:id="emailField" promptText="nom.prenom@email.fr" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+        <Label text="Mot de passe :" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="label" />
+        <PasswordField fx:id="passwordField" promptText="Mot de passe temporaire" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+    </GridPane>
+
+    <Label fx:id="errorLabel" style="-fx-font-weight: bold; -fx-text-fill: #DC2626;" text="Erreur de saisie" visible="false" />
+
+    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+        <Button onAction="#handleCancel" styleClass="button" text="Annuler" />
+        <Button onAction="#handleSave" styleClass="button-primary" text="Enregistrer" />
+    </HBox>
+</VBox>

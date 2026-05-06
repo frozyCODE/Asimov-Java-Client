@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.asimov.client.controllers.ParentsTabController">
+    <Label text="Gestion des Parents" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    
+    <TableView fx:id="parentsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50" />
+            <TableColumn fx:id="colNom" text="Nom" prefWidth="150" />
+            <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="120" />
+            <TableColumn fx:id="colEmail" text="Email" prefWidth="200" />
+            <TableColumn fx:id="colEnfants" text="Enfants" prefWidth="250" />
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="120" />
+        </columns>
+    </TableView>
+    
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Rafraîchir" onAction="#loadParents" styleClass="button-secondary"/>
+        <Button text="Nouveau Parent" onAction="#handleNewParent" styleClass="button-primary"/>
+    </HBox>
+</VBox>

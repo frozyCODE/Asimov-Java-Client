@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootVBox" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.asimov.client.controllers.DashboardController" stylesheets="@../css/styles.css">
 
-<VBox fx:id="rootVBox" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.asimov.client.controllers.DashboardController" stylesheets="@../css/styles.css">
-
+    <!-- Barre de Navigation Supérieure -->
     <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="20.0">
-        <Label text="Asimov" styleClass="title-label" style="-fx-padding: 0; -fx-text-fill: #1E88E5;" />
+        <Label text="ASIMOV" styleClass="title-label" />
 
         <HBox spacing="5.0" HBox.hgrow="ALWAYS">
             <Button fx:id="elevesNavButton" text="Élèves" styleClass="nav-button" onAction="#showElevesTab" />
+            <Button fx:id="parentsNavButton" text="Parents" styleClass="nav-button" onAction="#showParentsTab" />
             <Button fx:id="optionsNavButton" text="Options" styleClass="nav-button" onAction="#showOptionsTab" />
             <Button fx:id="moyennesNavButton" text="Moyennes" styleClass="nav-button" onAction="#showMoyennesTab" />
-            <Button fx:id="classesNavButton" text="Classes" styleClass="nav-button" onAction="#showClassesTab" visible="false" managed="false" />
+            <Button fx:id="classesNavButton" text="Classes" styleClass="nav-button" onAction="#showClassesTab" />
         </HBox>
 
-        <Label fx:id="welcomeLabel" style="-fx-text-fill: #9E9E9E;" text="Bienvenue !" />
+        <Label fx:id="welcomeLabel" styleClass="subtitle-label" text="Bienvenue !" />
         <Button text="Déconnexion" styleClass="button, button-danger" onAction="#handleLogout" />
     </HBox>
 
-    <StackPane VBox.vgrow="ALWAYS" style="-fx-padding: 20px;">
-
+    <!-- Contenu Central (Tabs) -->
+    <StackPane VBox.vgrow="ALWAYS" styleClass="content-pane">
+        <!-- Onglets Administration -->
         <fx:include fx:id="elevesTab" source="tabs/ElevesTab.fxml" visible="false" managed="false" />
+        <fx:include fx:id="parentsTab" source="tabs/ParentsTab.fxml" visible="false" managed="false" />
         <fx:include fx:id="classesTab" source="tabs/ClassesTab.fxml" visible="false" managed="false" />
         <fx:include fx:id="optionsTab" source="tabs/OptionsTab.fxml" visible="false" managed="false" />
         <fx:include fx:id="moyennesTab" source="tabs/MoyennesTab.fxml" visible="false" managed="false" />
-        <fx:include fx:id="elevesTab" source="tabs/ElevesTab.fxml" visible="false" managed="false" />
+        
+        <!-- Onglets Spécifiques Rôles -->
         <fx:include fx:id="eleveProfileTab" source="tabs/EleveProfileTab.fxml" visible="false" managed="false" />
-
+        <fx:include fx:id="mesEnfantsTab" source="tabs/MesEnfantsTab.fxml" visible="false" managed="false" />
     </StackPane>
-
 </VBox>

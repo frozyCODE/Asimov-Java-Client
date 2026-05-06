@@ -11,11 +11,6 @@
             <Label fx:id="nomCompletLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;" text="Chargement..." />
             <Label fx:id="emailLabel" style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;" text="email@asimov.fr" />
         </VBox>
-        <Region HBox.hgrow="ALWAYS" />
-        <VBox alignment="CENTER_RIGHT">
-            <Label text="STATUT" style="-fx-text-fill: #3B82F6; -fx-font-weight: bold; -fx-font-size: 12px;" />
-            <Label text="Élève Actif" style="-fx-text-fill: #FFFFFF; -fx-font-size: 14px;" />
-        </VBox>
     </HBox>
 
     <HBox spacing="25.0" VBox.vgrow="ALWAYS">
@@ -28,7 +23,7 @@
 
             <VBox spacing="10.0" style="-fx-background-color: #18181B; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #27272A; -fx-border-radius: 10;" VBox.vgrow="ALWAYS">
                 <Label text="MES OPTIONS" styleClass="subtitle-label" />
-                <ListView fx:id="optionsList" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" prefHeight="150.0" />
+                <ListView fx:id="optionsList" prefHeight="150.0" />
             </VBox>
         </VBox>
 

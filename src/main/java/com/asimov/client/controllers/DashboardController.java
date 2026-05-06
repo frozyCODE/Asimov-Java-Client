@@ -6,149 +6,171 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-
 import java.io.IOException;
 
 /**
  * Orchestrateur principal de l'interface utilisateur.
- * Gère la navigation entre les modules et adapte l'affichage selon les droits d'accès (RBAC).
+ * Gère la navigation et l'affichage conditionnel selon les rôles.
  */
 public class DashboardController {
 
-    @FXML private Label welcomeLabel;
-    @FXML private Button elevesNavButton, optionsNavButton, moyennesNavButton, classesNavButton;
+    @FXML
+    private Label welcomeLabel;
+    @FXML
+    private Button elevesNavButton, optionsNavButton, moyennesNavButton, classesNavButton, parentsNavButton;
+    @FXML
+    private Node elevesTab, eleveProfileTab, classesTab, optionsTab, moyennesTab, parentsTab, mesEnfantsTab;
 
-    @FXML private Node elevesTab, eleveProfileTab, classesTab, optionsTab, moyennesTab;
-
-    @FXML private ElevesTabController elevesTabController;
-    @FXML private EleveProfileTabController eleveProfileTabController;
-    @FXML private ClassesTabController classesTabController;
-    @FXML private OptionsTabController optionsTabController;
-    @FXML private MoyennesTabController moyennesTabController;
+    // Injection automatique des contrôleurs des onglets inclus (doit correspondre à
+    // fx:id + "Controller")
+    @FXML
+    private ElevesTabController elevesTabController;
+    @FXML
+    private EleveProfileTabController eleveProfileTabController;
+    @FXML
+    private ClassesTabController classesTabController;
+    @FXML
+    private OptionsTabController optionsTabController;
+    @FXML
+    private MoyennesTabController moyennesTabController;
+    @FXML
+    private ParentsTabController parentsTabController;
+    @FXML
+    private MesEnfantsController mesEnfantsTabController; // Correction du nom ici
 
     /**
-     * Initialise la session, configure les accès et définit l'onglet par défaut au lancement.
+     * Initialise le dashboard et sélectionne la vue par défaut selon le rôle.
      */
     @FXML
     public void initialize() {
         UserSession session = UserSession.getInstance();
-        welcomeLabel.setText("Session : " + session.getPrenom() + " " + session.getNom());
-
+        welcomeLabel
+                .setText("Session : " + session.getPrenom() + " " + session.getNom() + " (" + session.getRole() + ")");
         configurerAcces(session);
-        showElevesTab();
+
+        // Sélection de l'onglet initial sécurisée
+        if (session.hasRole("Parent")) {
+            showMesEnfantsTab();
+        } else if (session.hasRole("Eleve")) {
+            showElevesTab();
+        } else {
+            showElevesTab();
+        }
     }
 
     /**
-     * Restreint les fonctionnalités administratives pour le rôle Élève.
-     *
-     * @param session Session de l'utilisateur connecté.
+     * Masque les boutons de navigation non autorisés.
      */
     private void configurerAcces(UserSession session) {
-        boolean estEleve = session.hasRole("Eleve");
+        boolean estAdmin = session.hasRole("Secretariat") || session.hasRole("Proviseur");
+        boolean estProf = session.hasRole("Professeur");
+        boolean estParent = session.hasRole("Parent");
 
-        if (estEleve) {
+        parentsNavButton.setVisible(estAdmin);
+        parentsNavButton.setManaged(estAdmin);
+
+        optionsNavButton.setVisible(estAdmin);
+        optionsNavButton.setManaged(estAdmin);
+
+        classesNavButton.setVisible(estAdmin || estProf);
+        classesNavButton.setManaged(estAdmin || estProf);
+
+        // Les moyennes sont réservées aux admins et profs
+        moyennesNavButton.setVisible(estAdmin || estProf);
+        moyennesNavButton.setManaged(estAdmin || estProf);
+
+        if (session.hasRole("Eleve"))
             elevesNavButton.setText("Mon Profil");
-        }
-
-        classesNavButton.setVisible(!estEleve);
-        classesNavButton.setManaged(!estEleve);
-
-        optionsNavButton.setVisible(!estEleve);
-        optionsNavButton.setManaged(!estEleve);
-
-        moyennesNavButton.setVisible(!estEleve);
-        moyennesNavButton.setManaged(!estEleve);
+        if (estParent)
+            elevesNavButton.setText("Mes Enfants");
     }
 
-    /**
-     * Oriente vers le profil personnel ou la gestion globale des élèves selon le rôle.
-     */
     @FXML
     private void showElevesTab() {
-        UserSession session = UserSession.getInstance();
-
-        if (session.hasRole("Eleve")) {
+        UserSession s = UserSession.getInstance();
+        if (s.hasRole("Eleve")) {
             switchTab(eleveProfileTab, elevesNavButton);
-            if (eleveProfileTabController != null) {
+            if (eleveProfileTabController != null)
                 eleveProfileTabController.loadData();
-            }
+        } else if (s.hasRole("Parent")) {
+            showMesEnfantsTab();
         } else {
             switchTab(elevesTab, elevesNavButton);
-            if (elevesTabController != null) {
+            if (elevesTabController != null)
                 elevesTabController.loadData();
-            }
         }
     }
 
-    /**
-     * Affiche l'onglet de gestion des classes.
-     */
+    @FXML
+    private void showParentsTab() {
+        if (!UserSession.getInstance().hasRole("Secretariat") && !UserSession.getInstance().hasRole("Proviseur"))
+            return;
+        switchTab(parentsTab, parentsNavButton);
+        if (parentsTabController != null)
+            parentsTabController.loadParents();
+    }
+
+    @FXML
+    private void showMesEnfantsTab() {
+        switchTab(mesEnfantsTab, elevesNavButton);
+        if (mesEnfantsTabController != null) {
+            mesEnfantsTabController.loadData();
+        } else {
+            System.err.println("[ERREUR] mesEnfantsTabController est null !");
+        }
+    }
+
     @FXML
     private void showClassesTab() {
+        if (UserSession.getInstance().hasRole("Parent") || UserSession.getInstance().hasRole("Eleve"))
+            return;
         switchTab(classesTab, classesNavButton);
-        if (classesTabController != null) {
+        if (classesTabController != null)
             classesTabController.loadData();
-        }
     }
 
-    /**
-     * Affiche l'onglet de gestion des options.
-     */
     @FXML
     private void showOptionsTab() {
+        if (!UserSession.getInstance().hasRole("Secretariat") && !UserSession.getInstance().hasRole("Proviseur"))
+            return;
         switchTab(optionsTab, optionsNavButton);
-        if (optionsTabController != null) {
+        if (optionsTabController != null)
             optionsTabController.loadData();
-        }
     }
 
-    /**
-     * Affiche l'onglet de gestion des moyennes.
-     */
     @FXML
     private void showMoyennesTab() {
+        if (UserSession.getInstance().hasRole("Parent") || UserSession.getInstance().hasRole("Eleve"))
+            return;
         switchTab(moyennesTab, moyennesNavButton);
-        if (moyennesTabController != null) {
+        if (moyennesTabController != null)
             moyennesTabController.loadData();
-        }
     }
 
     /**
-     * Permute visuellement les modules de l'application en masquant les vues inactives.
-     *
-     * @param activeTab Le composant FXML à afficher.
-     * @param activeBtn Le bouton de navigation à mettre en surbrillance.
+     * Gère la visibilité des nœuds pour simuler un système d'onglets.
      */
-    private void switchTab(Node activeTab, Button activeBtn) {
-        Node[] tabs = {elevesTab, eleveProfileTab, classesTab, optionsTab, moyennesTab};
-        Button[] btns = {elevesNavButton, classesNavButton, optionsNavButton, moyennesNavButton};
+    private void switchTab(Node tab, Button btn) {
+        Node[] tabs = { elevesTab, eleveProfileTab, classesTab, optionsTab, moyennesTab, parentsTab, mesEnfantsTab };
+        Button[] btns = { elevesNavButton, classesNavButton, optionsNavButton, moyennesNavButton, parentsNavButton };
 
-        for (Node tab : tabs) {
-            if (tab != null) {
-                tab.setVisible(false);
-                tab.setManaged(false);
+        for (Node t : tabs)
+            if (t != null) {
+                t.setVisible(false);
+                t.setManaged(false);
             }
-        }
+        for (Button b : btns)
+            if (b != null)
+                b.getStyleClass().remove("nav-button-active");
 
-        for (Button btn : btns) {
-            if (btn != null) {
-                btn.getStyleClass().remove("nav-button-active");
-            }
+        if (tab != null) {
+            tab.setVisible(true);
+            tab.setManaged(true);
         }
-
-        if (activeTab != null) {
-            activeTab.setVisible(true);
-            activeTab.setManaged(true);
-        }
-
-        if (activeBtn != null) {
-            activeBtn.getStyleClass().add("nav-button-active");
-        }
+        if (btn != null)
+            btn.getStyleClass().add("nav-button-active");
     }
 
-    /**
-     * Termine la session de l'utilisateur et redirige vers la page de connexion.
-     */
     @FXML
     private void handleLogout() {
         try {

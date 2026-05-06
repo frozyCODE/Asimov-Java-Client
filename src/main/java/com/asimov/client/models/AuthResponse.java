@@ -10,8 +10,5 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthResponse {
-    private AuthData data; // Le token est maintenant à l'intérieur de l'objet 'data'
-    // Vous pouvez aussi ajouter 'message' et 'success' si vous voulez les récupérer
-    // private boolean success;
-    // private String message;
+    private AuthData data;
 }

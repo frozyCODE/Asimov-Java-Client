@@ -1,6 +1,7 @@
 package com.asimov.client.utils;
 
 import com.asimov.client.controllers.AddEditEleveController;
+import com.asimov.client.controllers.AddEditParentController;
 import com.asimov.client.models.Eleve;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -142,6 +143,44 @@ public class SceneManager {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    /**
+     * Affiche une fenêtre modale pour l'ajout d'un nouveau parent.
+     * 
+     * @param onSave Callback à exécuter après un enregistrement réussi.
+     */
+    public static void showParentAddDialog(Runnable onSave) {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            URL resource = SceneManager.class.getResource("/com/asimov/client/views/AddEditParentView.fxml");
+            if (resource == null) {
+                throw new RuntimeException("Fichier FXML AddEditParentView introuvable.");
+            }
+            loader.setLocation(resource);
+            Parent page = loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Ajouter un Parent");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+
+            Scene scene = new Scene(page);
+            URL cssUrl = SceneManager.class.getResource("/com/asimov/client/css/styles.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+            dialogStage.setScene(scene);
+            dialogStage.setResizable(false);
+
+            AddEditParentController controller = loader.getController();
+            controller.setOnSave(onSave);
+
+            dialogStage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
