@@ -24,7 +24,8 @@ public class ApiClient {
     }
 
     public static ApiClient getInstance() {
-        if (instance == null) instance = new ApiClient();
+        if (instance == null)
+            instance = new ApiClient();
         return instance;
     }
 
